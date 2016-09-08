@@ -105,7 +105,7 @@
         99,
         100
       ],
-      "defaultValue": 1,
+      "defaultValue": 3,
       "metadata": {
         "description": "The number of Mesos agents for the cluster.  This value can be from 1 to 100"
       },
@@ -246,7 +246,7 @@
         "description": "This is the linux version used by the linux cluster"
       },
       "type": "string"
-    },  
+    },
     "masterEndpointDNSNamePrefix": {
       "metadata": {
         "description": "Sets the Domain name label for the master IP Address.  The concatenation of the domain name label and the regional DNS zone make up the fully qualified domain name associated with the public IP address."
@@ -303,16 +303,16 @@
     "agentEndpointDNSNamePrefix": "[tolower(parameters('agentEndpointDNSNamePrefix'))]",
     "agentFirstAddr": 4,
     "agentPrivateAddressPrefix": [
-      "10.32.0.0/11",
-      "10.33.0.0/11",
-      "10.34.0.0/11" ],
-
+      "10.32.0.0/16",
+      "10.33.0.0/16",
+      "10.34.0.0/16"
+    ],
     "agentPrivateCount": "[parameters('agentCount')]",
     "agentPrivateSubnetName": [
       "[concat(variables('orchestratorName'), '-agentPrivateSubnet-', '0')]",
       "[concat(variables('orchestratorName'), '-agentPrivateSubnet-', '1')]",
-      "[concat(variables('orchestratorName'), '-agentPrivateSubnet-', '2' )]" ],
-
+      "[concat(variables('orchestratorName'), '-agentPrivateSubnet-', '2' )]"
+    ],
     "agentPrivateVMNamePrefix": "[concat(variables('orchestratorName'), '-agent-private-', variables('nameSuffix'))]",
     "agentPublicAddressPrefix": "10.0.0.0/11",
     "agentPublicCount": "[variables('agentPublicCountPerMasterCount')[string(variables('masterCount'))]]",
@@ -665,13 +665,13 @@
               "addressPrefix": "[variables('agentPrivateAddressPrefix')[0]]"
             }
           },
-                    {
+          {
             "name": "[variables('agentPrivateSubnetName')[1]]",
             "properties": {
               "addressPrefix": "[variables('agentPrivateAddressPrefix')[1]]"
             }
           },
-                    {
+          {
             "name": "[variables('agentPrivateSubnetName')[2]]",
             "properties": {
               "addressPrefix": "[variables('agentPrivateAddressPrefix')[2]]"
@@ -685,10 +685,8 @@
       "apiVersion": "[variables('apiVersionDefault')]",
       "location": "[resourceGroup().location]",
       "name": "[variables('masterAvailabilitySet')]",
-      "properties": {},
       "type": "Microsoft.Compute/availabilitySets",
-      "platformUpdateDomainCount": 3,
-      "platformFaultDomainCount": 3
+      "properties": {}
     },
     {
       "apiVersion": "[variables('apiVersionDefault')]",
@@ -807,7 +805,7 @@
             "name": "ipConfigNode",
             "properties": {
               "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[concat(split(variables('agentPrivateAddressPrefix')[mod(copyIndex(), 3)],'0.0/11')[0], div(copyIndex(),variables('agentsPerIPv4Octet')), '.', add(mod(copyIndex(),variables('agentsPerIPv4Octet')), variables('agentFirstAddr')))]",
+              "privateIPAddress": "[concat(split(variables('agentPrivateAddressPrefix')[mod(copyIndex(), 3)],'0.0/16')[0], div(copyIndex(),variables('agentsPerIPv4Octet')), '.', add(mod(copyIndex(),variables('agentsPerIPv4Octet')), variables('agentFirstAddr')))]",
               "subnet": {
                 "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'), '/subnets/', variables('agentPrivateSubnetName')[mod(copyIndex(), 2)])]"
               }
@@ -1133,7 +1131,10 @@
       "type": "Microsoft.Compute/availabilitySets",
       "name": "[variables('agentPrivateAvailabilitySet')]",
       "location": "[resourceGroup().location]",
-      "properties": {}
+      "properties": {
+        "platformUpdateDomainCount": 3,
+        "platformFaultDomainCount": 3
+      }
     },
     {
       "apiVersion": "2015-06-15",
@@ -1255,10 +1256,10 @@
               },
               "createOption": "Empty"
             },
-                        {
+            {
               "name": "[concat(variables('agentPrivateVMNamePrefix'), copyIndex(),'-datadisk-1')]",
               "diskSizeGB": "128",
-              "lun": 0,
+              "lun": 1,
               "vhd": {
                 "uri": "[concat('http://',variables('storageAccountPrefixes')[mod(add(variables('dataStorageAccountPrefixSeed'),div(copyIndex(),variables('vmsPerStorageAccount'))),variables('storageAccountPrefixesCount'))],variables('storageAccountPrefixes')[div(add(variables('dataStorageAccountPrefixSeed'),div(copyIndex(),variables('vmsPerStorageAccount'))),variables('storageAccountPrefixesCount'))],variables('agentStoragePrivateDataAccountName'),div(copyIndex(),variables('vmsPerStorageAccount')), '.blob.core.windows.net/vhds/', variables('agentPrivateVMNamePrefix'), copyIndex(), '--datadisk-1.vhd')]"
               },
