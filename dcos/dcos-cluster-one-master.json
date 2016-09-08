@@ -298,7 +298,7 @@
       "type": "int"
     }, 
     "sshRSAPublicKey": {
-      "defaultValue": "", 
+      "defaultValue": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCuxXmfo3ut0echPNekpU9pt32uxTQwex90LQr529BHHa5oCbgByqaZOQCEmuWlsHXJWp+pTlwutsxgLua9Q5iH6JEiKKiJjUsZ6a5bxHakmJdRS0LVwP+mxnf1ifXl0wRqLcS1Qi4SConfsufrges4hMM2KTN2YoAaQ2B4+vHpDJR9LuxJ9zhQnQRLQcAUdaFUmEHBhjLSpIzlEodL8DDHegEXGt/2RAlUxjhRLboDeUUk4VvIToejnxv/3m9yt7qkFGOFGsoJhpT7GUMhDm01rVEZHNZr86dC/gsz8eW+fc+wcUO4tV+2qeCR7dlLEMdChDe09zsId+Btg60yNb+R cschittk@csc-carbon", 
       "metadata": {
         "description": "SSH public key used for auth to all Linux machines.  Not Required.  If not set, you must provide a password key."
       }, 
