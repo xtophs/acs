@@ -1,0 +1,64 @@
+#cloud-config
+
+bootcmd:
+- bash -c "if [ ! -f /var/lib/sdb-gpt ];then echo DCOS-5890;parted -s /dev/sdb mklabel
+    gpt;touch /var/lib/sdb-gpt;fi"
+
+packages: ["mdadm"]
+
+disk_setup:
+    ephemeral0:
+       layout:
+       - 50
+       - 50
+       overwrite: true
+       table_type: gpt
+
+    /dev/sdc:
+       table_type: gpt
+       layout: true
+       overwrite: true
+
+    /dev/sdc:
+       table_type: gpt
+       layout: true
+       overwrite: true
+
+
+fs_setup:
+-   device: ephemeral0.1
+    filesystem: ext4
+    overwrite: true
+-   device: ephemeral0.2
+    filesystem: ext4
+    overwrite: true
+
+    
+mounts:
+-   - ephemeral0.1
+    - /var/lib/mesos
+-   - ephemeral0.2
+    - /var/lib/docker
+-   - 
+
+runcmd:
+-   - mkfs
+    - -t
+    - ext4
+    - /dev/md127
+-   - mdadm
+    - --create 
+    - /dev/md127 
+    - --level=0 
+    - --raid-devices 
+    - 2 
+    - /dev/sdc1 
+    - /dev/sdd1
+- echo UUID=$(sudo /sbin/blkid | grep md127 | cut -d\" -f 2) /data ext4 defaults 0 2 >> /etc/fstab
+-   - chmod
+    - 777
+    - /data
+-   - mkdir
+    - /remote
+- 
+...
